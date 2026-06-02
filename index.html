@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mirror Dock</title>
+    <meta
+      name="description"
+      content="A tiny daily browser puzzle where you rotate mirrors and fire a beam into five docks."
+    >
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2318211f'/%3E%3Cpath d='M13 44 44 13l7 7-31 31z' fill='%23f2c14e'/%3E%3Cpath d='M9 18h16M39 46h16' stroke='%2318a999' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="src/styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="play-surface" aria-labelledby="game-title">
+        <div class="top-line">
+          <div>
+            <p class="eyebrow">Daily beam puzzle</p>
+            <h1 id="game-title">Mirror Dock</h1>
+          </div>
+          <div class="date-chip" id="date-chip">---- -- --</div>
+        </div>
+
+        <div class="status-grid" aria-label="Run status">
+          <div class="metric">
+            <span>Dock</span>
+            <strong id="dock-count">1/5</strong>
+          </div>
+          <div class="metric">
+            <span>Pulses</span>
+            <strong id="pulse-count">12</strong>
+          </div>
+          <div class="metric">
+            <span>Score</span>
+            <strong id="score-count">0</strong>
+          </div>
+          <div class="metric">
+            <span>Profile</span>
+            <strong id="route-profile">Tidy</strong>
+          </div>
+        </div>
+
+        <div class="board-wrap">
+          <div class="edge-label top">incoming</div>
+          <div id="board" class="board" role="grid" aria-label="Mirror Dock board"></div>
+          <div class="edge-label bottom">dock exit</div>
+        </div>
+
+        <div class="controls" aria-label="Game controls">
+          <button id="start-button" class="primary-button" type="button">Start run</button>
+          <button id="fire-button" type="button" disabled>Fire beam</button>
+          <button id="nudge-button" type="button" disabled>Nudge</button>
+          <button id="next-button" type="button" hidden>Next dock</button>
+          <button id="copy-button" type="button" disabled>Copy score</button>
+        </div>
+      </section>
+
+      <aside class="side-panel" aria-label="Run details">
+        <div class="dock-card">
+          <p class="eyebrow">Now aligning</p>
+          <h2 id="dock-name">Flashpoint Dock</h2>
+          <p id="dock-status">Start the run, rotate the mirrors, then fire the beam.</p>
+        </div>
+
+        <div class="detail-list">
+          <div>
+            <span>Shots</span>
+            <strong id="shot-count">0</strong>
+          </div>
+          <div>
+            <span>Best today</span>
+            <strong id="best-count">0</strong>
+          </div>
+          <div>
+            <span>Grade</span>
+            <strong id="grade-count">D</strong>
+          </div>
+        </div>
+
+        <section id="result-panel" class="result-panel" hidden>
+          <p class="eyebrow">Result</p>
+          <h2 id="result-title">Dock run complete</h2>
+          <p id="share-text"></p>
+        </section>
+      </aside>
+    </main>
+
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "fun-20260602-a-mirror-dock",
+  "version": "1.0.0",
+  "description": "A tiny no-dependency daily browser puzzle about rotating mirrors to dock a beam.",
+  "type": "module",
+  "scripts": {
+    "check": "node scripts/check.mjs",
+    "test": "node scripts/check.mjs",
+    "verify:browser": "node scripts/browser-smoke.mjs",
+    "serve": "python3 -m http.server 5222"
+  },
+  "keywords": [
+    "browser-game",
+    "daily-game",
+    "puzzle-game",
+    "no-dependencies",
+    "static-site"
+  ],
+  "license": "MIT"
+}
