@@ -14,10 +14,8 @@ import {
 } from "./core.js";
 
 const params = new URLSearchParams(window.location.search);
-const requestedDate = params.get("date");
-const dateKey = /^\d{4}-\d{2}-\d{2}$/.test(requestedDate || "")
-  ? requestedDate
-  : shanghaiDateKey(new Date());
+const todayDateKey = shanghaiDateKey(new Date());
+let activeDateKey = validDateKey(params.get("date")) ? params.get("date") : todayDateKey;
 
 const elements = {
   board: document.querySelector("#board"),
@@ -38,11 +36,15 @@ const elements = {
   fireButton: document.querySelector("#fire-button"),
   nudgeButton: document.querySelector("#nudge-button"),
   nextButton: document.querySelector("#next-button"),
-  copyButton: document.querySelector("#copy-button")
+  copyButton: document.querySelector("#copy-button"),
+  challengeDate: document.querySelector("#challenge-date"),
+  loadDateButton: document.querySelector("#load-date-button"),
+  todayButton: document.querySelector("#today-button"),
+  copyLinkButton: document.querySelector("#copy-link-button")
 };
 
 const state = {
-  deck: createDailyDock(dateKey),
+  deck: createDailyDock(activeDateKey),
   puzzle: null,
   levelIndex: 0,
   orientations: {},
@@ -69,6 +71,7 @@ window.MirrorDock = {
   get deck() {
     return state.deck;
   },
+  getChallengeLink,
   getShareText,
   getState() {
     return {
@@ -85,6 +88,7 @@ window.MirrorDock = {
       possibleScore: state.deck.possibleScore
     };
   },
+  loadDate: loadChallengeDate,
   solveCurrent() {
     if (!state.puzzle) return;
     state.orientations = solutionOrientations(state.puzzle);
@@ -104,6 +108,9 @@ function wireEvents() {
   elements.nudgeButton.addEventListener("click", nudgeMirror);
   elements.nextButton.addEventListener("click", nextDock);
   elements.copyButton.addEventListener("click", copyScore);
+  elements.loadDateButton.addEventListener("click", () => loadChallengeDate(elements.challengeDate.value));
+  elements.todayButton.addEventListener("click", () => loadChallengeDate(todayDateKey));
+  elements.copyLinkButton.addEventListener("click", copyChallengeLink);
   elements.board.addEventListener("click", (event) => {
     const cell = event.target.closest(".cell");
     if (!cell || cell.disabled || !cell.dataset.key) return;
@@ -111,14 +118,15 @@ function wireEvents() {
   });
 
   document.addEventListener("keydown", (event) => {
+    if (document.activeElement === elements.challengeDate) return;
     if (event.key === "Enter") fireBeam();
     if (event.key.toLowerCase() === "n") nudgeMirror();
     if (event.key.toLowerCase() === "r") startRun();
   });
 }
 
-function resetRun(active) {
-  state.deck = createDailyDock(dateKey);
+function resetRun(active, message) {
+  state.deck = createDailyDock(activeDateKey);
   state.levelIndex = 0;
   state.running = active;
   state.finished = false;
@@ -133,9 +141,9 @@ function resetRun(active) {
   state.lastTrace = null;
   state.best = loadBest();
   setupLevel(0);
-  state.message = active
+  state.message = message || (active
     ? "Beam online. Rotate mirrors, then fire."
-    : "Start the run, rotate the mirrors, then fire the beam.";
+    : "Start the run, rotate the mirrors, then fire the beam.");
 }
 
 function setupLevel(index) {
@@ -149,6 +157,19 @@ function setupLevel(index) {
 
 function startRun() {
   resetRun(true);
+  render();
+}
+
+function loadChallengeDate(dateKey) {
+  if (!validDateKey(dateKey)) {
+    state.message = "Enter a valid challenge date.";
+    render();
+    return;
+  }
+
+  activeDateKey = dateKey;
+  updateUrlForDate(dateKey);
+  resetRun(false, dateKey === todayDateKey ? "Today's dock route loaded." : "Challenge route loaded.");
   render();
 }
 
@@ -240,6 +261,9 @@ function finishRun(message) {
 function render() {
   const grade = gradeFor(state.score, state.deck.possibleScore);
   elements.dateChip.textContent = state.deck.dateKey;
+  if (document.activeElement !== elements.challengeDate) {
+    elements.challengeDate.value = state.deck.dateKey;
+  }
   elements.dockCount.textContent = `${Math.min(state.levelIndex + 1, DAILY_DOCKS)}/${DAILY_DOCKS}`;
   elements.pulseCount.textContent = String(state.pulses);
   elements.scoreCount.textContent = String(state.score);
@@ -340,6 +364,18 @@ function getShareText(knownGrade) {
 
 async function copyScore() {
   const text = getShareText();
+  await writeClipboard(text);
+  state.message = "Score copied.";
+  render();
+}
+
+async function copyChallengeLink() {
+  await writeClipboard(getChallengeLink());
+  state.message = "Challenge link copied.";
+  render();
+}
+
+async function writeClipboard(text) {
   try {
     await navigator.clipboard.writeText(text);
   } catch {
@@ -353,8 +389,27 @@ async function copyScore() {
     document.execCommand("copy");
     textarea.remove();
   }
-  state.message = "Score copied.";
-  render();
+}
+
+function getChallengeLink() {
+  const url = new URL(window.location.href);
+  url.searchParams.set("date", state.deck.dateKey);
+  url.hash = "";
+  return url.toString();
+}
+
+function updateUrlForDate(dateKey) {
+  const url = new URL(window.location.href);
+  if (dateKey === todayDateKey) {
+    url.searchParams.delete("date");
+  } else {
+    url.searchParams.set("date", dateKey);
+  }
+  window.history.replaceState(null, "", url);
+}
+
+function validDateKey(value) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value || "");
 }
 
 function loadBest() {

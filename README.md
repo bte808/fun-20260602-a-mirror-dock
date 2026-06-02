@@ -1,12 +1,19 @@
 # Mirror Dock
 
+[![Live demo](https://img.shields.io/badge/demo-GitHub%20Pages-0969da)](https://bte808.github.io/fun-20260602-a-mirror-dock/)
+![Runtime dependencies](https://img.shields.io/badge/runtime%20deps-0-2ea44f)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 Mirror Dock is a no-dependency daily browser puzzle. Rotate a handful of slash/backslash mirrors, fire the beam, and try to dock five generated boards before your pulse bank runs out.
+
+Live demo: <https://bte808.github.io/fun-20260602-a-mirror-dock/>
 
 ![Mirror Dock preview](docs/preview.svg)
 
 ## What it can do
 
 - Generates five deterministic daily 6x6 beam puzzles from the Asia/Shanghai date.
+- Loads any valid Challenge date and copies a fixed-date link for replayable routes.
 - Lets players rotate mirrors, fire the beam, see the path, and advance dock by dock.
 - Tracks pulse bank, shots, score, grade, daily best score, and a copyable share result.
 - Works as a static site with no login, API key, build step, framework, or asset download.
@@ -19,9 +26,15 @@ The board is tiny, but each click has immediate consequences. A wrong mirror spi
 ## Why it may be worth starring
 
 - It is easy to understand from the screenshot and playable within seconds.
-- The daily seed, score, grade, and share text make it naturally replayable and link-friendly.
+- The daily seed, Challenge date links, score, grade, and share text make it naturally replayable and link-friendly.
 - The implementation is compact, readable, and dependency-free, so it is useful as a reference for polished static browser toys.
 - The project ships with validation scripts, mobile checks, README positioning, license, topics-ready metadata, and GitHub Pages support.
+
+## 2026-06-02 Maintenance Update
+
+This pass adds a **Challenge date** control with **Load**, **Today**, and **Copy link** actions. The game still opens on the Asia/Shanghai daily route, but a player can now load a specific date and share a URL that recreates the same five dock boards.
+
+This makes the toy better for friends, classes, or small team breaks because one person can send a fixed puzzle route without needing accounts, leaderboards, or a backend. It also makes the repo more worth starring as a complete static-game reference: daily play, fixed challenge links, local best scores, generated boards, mobile smoke tests, and no runtime dependencies.
 
 ## Core loop
 
@@ -29,7 +42,8 @@ The board is tiny, but each click has immediate consequences. A wrong mirror spi
 2. Rotate mirrors on the 6x6 dock board.
 3. Fire the beam and read the path feedback.
 4. Land five docks for the best grade, or recover before pulses hit zero.
-5. Copy the result and compare the daily route.
+5. Use **Challenge date** when you want a replayable route.
+6. Copy the result or fixed-date link and compare the route.
 
 ## Run locally
 

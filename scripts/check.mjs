@@ -33,12 +33,18 @@ const readme = await readFile(new URL("../README.md", import.meta.url), "utf8");
 
 if (!html.includes('id="board"')) throw new Error("index.html must expose the puzzle board");
 if (!html.includes("Mirror Dock")) throw new Error("index.html must name the game");
+if (!html.includes('id="challenge-date"')) throw new Error("index.html must expose a challenge date picker");
+if (!html.includes('id="copy-link-button"')) throw new Error("index.html must expose a challenge link button");
 if (!app.includes("window.MirrorDock")) throw new Error("app.js must expose a browser smoke hook");
 if (!app.includes("solveCurrent")) throw new Error("app.js must expose a deterministic solve hook");
+if (!app.includes("loadDate: loadChallengeDate")) throw new Error("app.js must expose challenge date loading");
+if (!app.includes("getChallengeLink")) throw new Error("app.js must expose challenge link generation");
+if (!css.includes(".challenge-strip")) throw new Error("styles.css must style the challenge date controls");
 if (!css.includes("@media (max-width: 430px)")) throw new Error("styles.css must include narrow mobile layout");
 if (!readme.includes("Why it may be worth starring")) {
   throw new Error("README must include star-oriented positioning");
 }
+if (!readme.includes("Challenge date")) throw new Error("README must document the date challenge flow");
 if (!readme.includes("Inspiration sources")) throw new Error("README must cite public inspiration sources");
 
 const deck = createDailyDock("2026-06-02");

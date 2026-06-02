@@ -10,8 +10,11 @@
     "serve": "python3 -m http.server 5222"
   },
   "keywords": [
+    "beam-puzzle",
     "browser-game",
+    "daily-fun-project",
     "daily-game",
+    "github-pages",
     "puzzle-game",
     "no-dependencies",
     "static-site"

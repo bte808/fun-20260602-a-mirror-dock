@@ -9,7 +9,7 @@
       content="A tiny daily browser puzzle where you rotate mirrors and fire a beam into five docks."
     >
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2318211f'/%3E%3Cpath d='M13 44 44 13l7 7-31 31z' fill='%23f2c14e'/%3E%3Cpath d='M9 18h16M39 46h16' stroke='%2318a999' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
-    <link rel="stylesheet" href="src/styles.css">
+    <link rel="stylesheet" href="src/styles.css?v=20260602-1">
   </head>
   <body>
     <main class="app-shell">
@@ -39,6 +39,14 @@
             <span>Profile</span>
             <strong id="route-profile">Tidy</strong>
           </div>
+        </div>
+
+        <div class="challenge-strip" aria-label="Challenge date controls">
+          <label for="challenge-date">Challenge date</label>
+          <input id="challenge-date" type="date">
+          <button id="load-date-button" type="button">Load</button>
+          <button id="today-button" type="button">Today</button>
+          <button id="copy-link-button" type="button">Copy link</button>
         </div>
 
         <div class="board-wrap">
@@ -86,6 +94,6 @@
       </aside>
     </main>
 
-    <script type="module" src="src/app.js"></script>
+    <script type="module" src="src/app.js?v=20260602-1"></script>
   </body>
 </html>

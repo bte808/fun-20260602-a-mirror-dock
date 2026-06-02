@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
 import { mkdtemp, rm } from "node:fs/promises";
+import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -9,7 +10,7 @@ const url =
 const chromePath =
   process.env.CHROME_BIN ||
   "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const port = Number(process.env.CDP_PORT || 9336);
+const port = Number(process.env.CDP_PORT || await findFreePort());
 const userDataDir = await mkdtemp(join(tmpdir(), "mirror-dock-chrome-"));
 
 const chrome = spawn(chromePath, [
@@ -17,6 +18,7 @@ const chrome = spawn(chromePath, [
   "--disable-gpu",
   "--no-first-run",
   "--no-default-browser-check",
+  "--remote-debugging-address=127.0.0.1",
   `--remote-debugging-port=${port}`,
   `--user-data-dir=${userDataDir}`,
   "about:blank"
@@ -59,6 +61,9 @@ async function runViewport(viewport) {
       boardCells: document.querySelectorAll('.cell').length,
       startEnabled: !document.querySelector('#start-button')?.disabled,
       fireDisabled: document.querySelector('#fire-button')?.disabled,
+      challengeDate: document.querySelector('#challenge-date')?.value,
+      linkButtonEnabled: !document.querySelector('#copy-link-button')?.disabled,
+      challengeLink: window.MirrorDock.getChallengeLink(),
       profile: document.querySelector('#route-profile')?.textContent,
       visibleBoard: visible('#board')
     };
@@ -77,12 +82,41 @@ async function runViewport(viewport) {
     loaded.boardCells !== 36 ||
     !loaded.startEnabled ||
     !loaded.fireDisabled ||
+    loaded.challengeDate !== "2026-06-02" ||
+    !loaded.linkButtonEnabled ||
+    !loaded.challengeLink.includes("date=2026-06-02") ||
     !["Tidy", "Twisty", "Wild"].includes(loaded.profile) ||
     !loaded.visibleBoard
   ) {
     throw new Error(`unexpected load state: ${JSON.stringify(loaded)}`);
   }
 
+  const challenge = await evaluate(cdp, `(() => {
+    window.MirrorDock.loadDate("2026-06-03");
+    return {
+      dateKey: window.MirrorDock.getState().dateKey,
+      input: document.querySelector('#challenge-date').value,
+      chip: document.querySelector('#date-chip').textContent,
+      url: location.href,
+      link: window.MirrorDock.getChallengeLink(),
+      running: window.MirrorDock.getState().running,
+      boardCells: document.querySelectorAll('.cell').length
+    };
+  })()`);
+
+  if (
+    challenge.dateKey !== "2026-06-03" ||
+    challenge.input !== "2026-06-03" ||
+    challenge.chip !== "2026-06-03" ||
+    !challenge.url.includes("date=2026-06-03") ||
+    !challenge.link.includes("date=2026-06-03") ||
+    challenge.running ||
+    challenge.boardCells !== 36
+  ) {
+    throw new Error(`challenge date switch failed: ${JSON.stringify(challenge)}`);
+  }
+
+  await evaluate(cdp, `window.MirrorDock.loadDate("2026-06-02")`);
   await evaluate(cdp, `window.MirrorDock.start()`);
   await evaluate(cdp, `document.querySelector('[data-mirror="true"]').click()`);
 
@@ -268,6 +302,19 @@ async function evaluate(cdp, expression) {
 
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function findFreePort() {
+  return new Promise((resolve, reject) => {
+    const server = createServer();
+    server.unref();
+    server.on("error", reject);
+    server.listen(0, "127.0.0.1", () => {
+      const address = server.address();
+      const selectedPort = typeof address === "object" && address ? address.port : 0;
+      server.close(() => resolve(selectedPort));
+    });
+  });
 }
 
 function waitForExit(child) {
